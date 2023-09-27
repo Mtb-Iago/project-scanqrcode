@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Hero section with heading, subheading and button -->
-        <div class="bg-gray-50 px-6 py-20 text-center text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+        <div class="bg-gray-50 px-6 py-10 text-center text-gray-800 dark:bg-gray-700 dark:text-gray-200">
             <h1 class="mb-6 text-3xl font-bold">Faça leitura de código de barras</h1>
             <h3 class="mb-8 text-2xl">De forma simples e fácil</h3>
             <div class="scanner-container">
@@ -32,42 +32,15 @@
 
                 <div class="lg:col-span-12 col-span-12 xl:col-span-12 sm:col-span-12 p-3 text-center">
                     <button @click="saveAddress"
-                        class="inline-block rounded bg-primary px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)]"
-                        >Salvar</button>
+                        class="inline-block rounded bg-primary px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)]">Salvar</button>
                 </div>
             </div>
         </ModalScanner>
 
-        <div class="flex flex-col overflow-x-auto" v-if="showAddress">
-            <div class="sm:-mx-6 lg:-mx-8">
-                <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-left text-sm font-light">
-                            <thead class="border-b font-medium dark:border-neutral-500">
-                                <tr>
-                                    <th scope="col" class="px-6 py-4">Código</th>
-                                    <th scope="col" class="px-6 py-4">CEP</th>
-                                    <th scope="col" class="px-6 py-4">Logradouro</th>
-                                    <th scope="col" class="px-6 py-4">Bairro</th>
-                                    <th scope="col" class="px-6 py-4">Cidade</th>
-                                    <th scope="col" class="px-6 py-4">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="border-b dark:border-neutral-500" v-for="item in addresses"
-                                    :key="item.scannedCode">
-                                    <td class="whitespace-nowrap px-6 py-4 font-medium">{{ item.scannedCode }}</td>
-                                    <td class="whitespace-nowrap px-6 py-4">{{ item.cep }}</td>
-                                    <td class="whitespace-nowrap px-6 py-4">{{ item.logradouro }}</td>
-                                    <td class="whitespace-nowrap px-6 py-4">{{ item.bairro }}</td>
-                                    <td class="whitespace-nowrap px-6 py-4">{{ item.localidade }}</td>
-                                    <td class="whitespace-nowrap px-6 py-4">{{ item.uf }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div class="flex flex-col overflow-x-auto" v-if="showAddress" style="max-width: 1400px;margin: auto;">
+
+            <DataTable :data="addresses" :columns="columns" class="table table-hover table-striped mt-5" width="100%"
+                :options="options" />
         </div>
     </div>
 </template>
@@ -76,10 +49,58 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import Quagga from '@ericblade/quagga2';
 import ModalScanner from "@/components/Modal/Modal.vue";
+import DataTable from 'datatables.net-vue3';
+import DataTablesCore from 'datatables.net-bs5';
+import 'datatables.net-buttons-bs5';
+import 'datatables.net-responsive-bs5';
+import 'datatables.net-select-bs5';
+
+import 'datatables.net-buttons/js/buttons.html5.mjs';
+import 'datatables.net-buttons/js/buttons.print.mjs';
+import 'datatables.net-buttons/js/buttons.colVis.mjs';
+
 
 const props = defineProps<{
     msg: string;
 }>();
+
+DataTable.use(DataTablesCore);
+
+const options = {
+    responsive: true,
+    select: true,
+    dom: 'Brtflpi',
+    buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print',
+    ]
+};
+
+const columns = [
+    {
+        data: 'code',
+        title: 'Código',
+    },
+    {
+        data: 'zip',
+        title: 'CEP',
+    },
+    {
+        data: 'street',
+        title: 'Logradouro',
+    },
+    {
+        data: 'area',
+        title: 'Bairro',
+    },
+    {
+        data: 'city',
+        title: 'Cidade',
+    },
+    {
+        data: 'state',
+        title: 'Estado',
+    },
+];
 
 const modalScannerOpen = ref(false)
 const modalScanner = ref<InstanceType<typeof ModalScanner> | null>(null);
@@ -92,17 +113,18 @@ const detectionBoxStyle = ref<string>('');
 const address = ref<Address | null>(null); // Interface para armazenar informações do endereço
 
 interface Address {
-    scannedCode: string | null;
-    cep: string;
-    logradouro: string;
-    bairro: string;
-    localidade: string;
-    uf: string;
+    code: string | null;
+    zip: string;
+    street: string;
+    area: string;
+    city: string;
+    state: string;
 }
 
 const addresses = ref<Address[]>([]);
 
 const handleBarcodeScan = async (result: any) => {
+
     if (result && result.codeResult && result.codeResult.code) {
         scannedCode.value = result.codeResult.code;
         showDetectionBox.value = true;
@@ -122,16 +144,14 @@ const handleBarcodeScan = async (result: any) => {
             const response = await fetch(`https://viacep.com.br/ws/${result.codeResult.code}/json/`);
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
-
                 if (!data.erro) {
                     address.value = {
-                        scannedCode: scannedCode.value,
-                        cep: data.cep,
-                        logradouro: data.logradouro,
-                        bairro: data.bairro,
-                        localidade: data.localidade,
-                        uf: data.uf,
+                        code: scannedCode.value,
+                        zip: data.cep,
+                        street: data.logradouro,
+                        area: data.bairro,
+                        city: data.localidade,
+                        state: data.uf,
                     };
                     camStop()
                     openModalScanner()
@@ -202,12 +222,12 @@ function saveAddress() {
     if (address.value) {
         // Criar um novo objeto Address com os valores atuais
         const newAddress: Address = {
-            scannedCode: address.value.scannedCode,
-            cep: address.value.cep,
-            logradouro: address.value.logradouro,
-            bairro: address.value.bairro,
-            localidade: address.value.localidade,
-            uf: address.value.uf
+            code: address.value.code,
+            zip: address.value.zip,
+            street: address.value.street,
+            area: address.value.area,
+            city: address.value.city,
+            state: address.value.state
         };
 
         // Adicionar o novo objeto Address ao array addresses
@@ -278,13 +298,25 @@ function camStart() {
 
 }
 
-function renderModalWithInfo() {
-
-}
-
 </script>
   
 <style>
+@import 'bootstrap';
+@import 'datatables.net-bs5';
+@import 'datatables.net-responsive-bs5';
+@import 'datatables.net-select-bs5';
+@import 'datatables.net-buttons-bs5';
+.dt-buttons {
+    margin-top: 20px;
+}
+.dt-buttons .btn{
+
+    color: white;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+
 .scanner-container {
     display: flex;
     margin: auto;
