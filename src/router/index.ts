@@ -16,7 +16,11 @@ const routes = [
           component: () => import("@/views/scanner/ScannerView.vue"),
         },
       ]
-    }
+    },
+    {
+      path: '/teste',
+      redirect: "/teste"
+    },
   ]
 
 
